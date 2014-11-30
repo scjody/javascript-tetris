@@ -51,7 +51,9 @@ var dx, dy,        // pixel size of a single tetris block
     score,         // the current score
     vscore,        // the currently displayed score (it catches up to score in small chunks - like a spinning slot machine)
     rows,          // number of completed rows in the current game
-    step;          // how long before current piece drops by 1 row
+    step,          // how long before current piece drops by 1 row
+    totalGas,      // count of total gas used
+    currentGas;    // current gas usage
 
 //-------------------------------------------------------------------------
 // tetris pieces
@@ -208,6 +210,9 @@ function clearBlocks()          { blocks = []; invalidate(); }
 function clearActions()         { actions = []; }
 function setCurrentPiece(piece) { current = piece || randomPiece(); invalidate();     }
 function setNextPiece(piece)    { next    = piece || randomPiece(); invalidateNext(); }
+function setNextPiece(piece)    { next    = piece || randomPiece(); invalidateNext(); }
+function clearGas()             { totalGas = 0; invalidateGas(); }
+function addGas(n)              { totalGas += n; invalidateGas(); }
 
 function reset() {
   dt = 0;
@@ -215,6 +220,7 @@ function reset() {
   clearBlocks();
   clearRows();
   clearScore();
+  clearGas();
   setCurrentPiece(next);
   setNextPiece();
 }
@@ -228,6 +234,7 @@ function update(idt) {
     if (dt > step) {
       dt = dt - step;
       drop();
+      addGas(currentGas * step);
     }
   }
 }
@@ -325,6 +332,7 @@ function invalidate()         { invalid.court  = true; }
 function invalidateNext()     { invalid.next   = true; }
 function invalidateScore()    { invalid.score  = true; }
 function invalidateRows()     { invalid.rows   = true; }
+function invalidateGas()      { invalid.gas    = true; }
 
 function draw() {
   ctx.save();
@@ -334,6 +342,7 @@ function draw() {
   drawNext();
   drawScore();
   drawRows();
+  drawGas();
   ctx.restore();
 }
 
@@ -342,11 +351,14 @@ function drawCourt() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (playing)
       drawPiece(ctx, current.type, current.x, current.y, current.dir);
+    currentGas = 4;
     var x, y, block;
     for(y = 0 ; y < ny ; y++) {
       for (x = 0 ; x < nx ; x++) {
-        if (block = getBlock(x,y))
+        if (block = getBlock(x,y)) {
+          currentGas++;
           drawBlock(ctx, x, y, block.color);
+        }
       }
     }
     ctx.strokeRect(0, 0, nx*dx - 1, ny*dy - 1); // court boundary
@@ -379,6 +391,13 @@ function drawRows() {
   if (invalid.rows) {
     html('rows', rows);
     invalid.rows = false;
+  }
+}
+
+function drawGas() {
+  if (invalid.gas) {
+    html('gas', Math.round(totalGas));
+    invalid.gas = false;
   }
 }
 
