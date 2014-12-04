@@ -53,7 +53,8 @@ var dx, dy,        // pixel size of a single tetris block
     rows,          // number of completed rows in the current game
     step,          // how long before current piece drops by 1 row
     totalGas,      // count of total gas used
-    currentGas;    // current gas usage
+    currentGas,    // current gas usage
+    uuid;          // UUID of this game (for remote stats tracking)
 
 //-------------------------------------------------------------------------
 // tetris pieces
@@ -213,6 +214,7 @@ function setNextPiece(piece)    { next    = piece || randomPiece(); invalidateNe
 function setNextPiece(piece)    { next    = piece || randomPiece(); invalidateNext(); }
 function clearGas()             { totalGas = 0; invalidateGas(); }
 function addGas(n)              { totalGas += n; invalidateGas(); }
+function setUUID()              { uuid = generateUUID(); }
 
 function reset() {
   dt = 0;
@@ -223,6 +225,7 @@ function reset() {
   clearGas();
   setCurrentPiece(next);
   setNextPiece();
+  setUUID();
 }
 
 function update(idt) {
@@ -412,6 +415,20 @@ function drawBlock(ctx, x, y, color) {
   ctx.fillRect(x*dx, y*dy, dx, dy);
   ctx.strokeRect(x*dx, y*dy, dx, dy)
 }
+
+//-------------------------------------------------------------------------
+// Remote statistics
+//-------------------------------------------------------------------------
+
+function generateUUID() {
+    var d = new Date().getTime();
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = (d + Math.random() * 16) % 16 | 0;
+        d = Math.floor(d / 16);
+        return (c=='x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+    return uuid;
+};
 
 //-------------------------------------------------------------------------
 // FINALLY, lets run the game
