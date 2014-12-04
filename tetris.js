@@ -196,7 +196,7 @@ function keydown(ev) {
 //-------------------------------------------------------------------------
 
 function play() { hide('start'); reset();          playing = true;  }
-function lose() { show('start'); setVisualScore(); playing = false; }
+function lose() { show('start'); setVisualScore(); playing = false; submitStats(); }
 
 function setVisualScore(n)      { vscore = n || score; invalidateScore(); }
 function setScore(n)            { score = n; setVisualScore(n);  }
@@ -419,6 +419,17 @@ function drawBlock(ctx, x, y, color) {
 //-------------------------------------------------------------------------
 // Remote statistics
 //-------------------------------------------------------------------------
+
+function submitStats() {
+  var stats = {
+    "uuid": uuid,
+    "total_gas": totalGas,
+    "score": score,
+    "lines": rows,
+    "complete": !playing
+  };
+  $.post('http://cgi.modernduck.com/tetristats/collector', stats);
+}
 
 function generateUUID() {
     var d = new Date().getTime();
