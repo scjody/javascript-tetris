@@ -54,7 +54,8 @@ var dx, dy,        // pixel size of a single tetris block
     step,          // how long before current piece drops by 1 row
     totalGas,      // count of total gas used
     currentGas,    // current gas usage
-    uuid;          // UUID of this game (for remote stats tracking)
+    uuid,          // UUID of this game (for remote stats tracking)
+    startTime;     // Start time of game
 
 //-------------------------------------------------------------------------
 // tetris pieces
@@ -223,6 +224,7 @@ function reset() {
   clearRows();
   clearScore();
   clearGas();
+  startTime = timestamp();
   setCurrentPiece(next);
   setNextPiece();
   setUUID();
@@ -426,6 +428,7 @@ function submitStats() {
     "total_gas": totalGas,
     "score": score,
     "lines": rows,
+    "time": Math.round((timestamp() - startTime) / 1000),
     "complete": !playing
   };
   $.post('/tetristats/collector', stats);
