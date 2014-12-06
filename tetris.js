@@ -428,7 +428,7 @@ function submitStats() {
     "lines": rows,
     "complete": !playing
   };
-  $.post('http://cgi.modernduck.com/tetristats/collector', stats);
+  $.post('/tetristats/collector', stats);
 }
 
 function generateUUID() {
