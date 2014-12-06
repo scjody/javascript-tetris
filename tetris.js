@@ -196,8 +196,8 @@ function keydown(ev) {
 // GAME LOGIC
 //-------------------------------------------------------------------------
 
-function play() { hide('start'); reset();          playing = true;  }
-function lose() { show('start'); setVisualScore(); playing = false; submitStats(); }
+function play() { hide('start'); reset();          playing = true;  startRemoteStats(); }
+function lose() { show('start'); setVisualScore(); playing = false; stopRemoteStats(); submitRemoteStats(); }
 
 function setVisualScore(n)      { vscore = n || score; invalidateScore(); }
 function setScore(n)            { score = n; setVisualScore(n);  }
@@ -422,7 +422,8 @@ function drawBlock(ctx, x, y, color) {
 // Remote statistics
 //-------------------------------------------------------------------------
 
-function submitStats() {
+
+function submitRemoteStats() {
   var stats = {
     "uuid": uuid,
     "total_gas": totalGas,
@@ -432,6 +433,16 @@ function submitStats() {
     "complete": !playing
   };
   $.post('/tetristats/collector', stats);
+}
+
+var statsIntervalId;
+
+function startRemoteStats() {
+  statsIntervalId = setInterval(submitRemoteStats, 10000);
+}
+
+function stopRemoteStats() {
+  clearInterval(statsIntervalId);
 }
 
 function generateUUID() {
